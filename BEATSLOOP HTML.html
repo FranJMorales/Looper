@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BeatsLoop</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="./looper.css">
+</head>
+<body>
+  <div class="container">
+    <h1>BeatsLoop</h1>
+    <label for="file-upload">Carga el beat</label>
+    <input type="file" id="file-upload">
+    <br>
+    <br>
+    <label for="pitch">Pitch:</label>
+    <input type="range" id="pitch" min="0" max="200" value="100">
+    <br>
+    <br>
+    <label for="tone">Tono:</label>
+    <input type="range" id="tone" min="-100" max="100" value="0">
+    <br>
+    <br>
+    <label for="volume">Volumen:</label>
+    <input type="range" id="volume" min="0" max="200" value="100">
+    <br>
+    <br>
+    <button id="mute">Mute</button>
+    <br>
+    <br>
+    <button id="play">Start</button>
+  </div>
+
+  <script src="./looper.js"></script>
+</body>
+</html>

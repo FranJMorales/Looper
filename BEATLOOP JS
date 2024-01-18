@@ -1,0 +1,98 @@
+const fileUpload = document.getElementById('file-upload');
+const pitchRange = document.getElementById('pitch');
+const toneRange = document.getElementById('tone');
+const volumeRange = document.getElementById('volume');
+const muteButton = document.getElementById('mute');
+const playButton = document.getElementById('play');
+let audioContext;
+let audioSource;
+let gainNode;
+let isPlaying = false;
+
+function loadAudio(file) {
+  if (audioSource) {
+    audioSource.stop();
+    audioSource.disconnect();
+    audioSource = null;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function() {
+    audioContext.decodeAudioData(reader.result, function(buffer) {
+      audioSource = audioContext.createBufferSource();
+      audioSource.buffer = buffer;
+
+      gainNode = audioContext.createGain();
+      audioSource.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      audioSource.loop = true;
+      audioSource.start(0);
+      isPlaying = true;
+      playButton.innerText = 'Stop';
+    });
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+function init() {
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+  fileUpload.addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    loadAudio(file);
+  });
+
+  pitchRange.addEventListener('input', function() {
+    if (audioSource) {
+      audioSource.playbackRate.value = this.value / 100;
+    }
+  });
+
+  toneRange.addEventListener('input', function() {
+    if (audioSource) {
+      const cents = this.value;
+      const pitchSemitones = cents / 100;
+      const pitchValue = Math.pow(2, pitchSemitones);
+      audioSource.detune.value = pitchValue * 100;
+    }
+  });
+
+  volumeRange.addEventListener('input', function() {
+    if (gainNode) {
+      const volume = this.value / 100;
+      gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+    }
+  });
+
+  muteButton.addEventListener('click', function() {
+    if (gainNode) {
+      if (gainNode.gain.value === 0) {
+        const volume = volumeRange.value / 100;
+        gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+        muteButton.innerText = 'Mute';
+      } else {
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        muteButton.innerText = 'Unmute';
+      }
+    }
+  });
+
+  playButton.addEventListener('click', function() {
+    if (audioSource) {
+      if (isPlaying) {
+        audioSource.stop();
+        isPlaying = false;
+        playButton.innerText = 'Start';
+      } else {
+        audioSource.start(0);
+        isPlaying = true;
+        playButton.innerText = 'Stop';
+      }
+    }
+  });
+}
+
+init();
